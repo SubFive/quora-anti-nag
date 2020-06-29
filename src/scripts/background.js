@@ -1,12 +1,26 @@
 import ext from "./utils/ext";
 
-ext.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if(request.action === "perform-save") {
-      console.log("Extension Type: ", "/* @echo extension */");
-      console.log("PERFORM AJAX", request.data);
+// adapted from https://github.com/mdn/webextensions-examples/blob/master/cookie-bg-picker/background_scripts/background.js
 
-      sendResponse({ action: "saved" });
+
+function cookieUpdate() {
+  ext.tabs.query({active: true, currentWindow: true},
+    (tabs) => {
+
+      ext.cookies.remove({'name': 'm-b', 'url': tabs[0].url}, () => {});
+      ext.cookies.remove({'name': 'm-b_lax', 'url': tabs[0].url}, () => {});
+      ext.cookies.remove({'name': 'm-b_strict', 'url': tabs[0].url}, () => {});
+      // ext.cookies.getAll(
+      //   { url: tabs[0].url },
+      //   (cookies) => {
+      //     cookies.forEach(c => {
+      //     });
+      //   }
+      // );
+
     }
-  }
-);
+  );
+}
+ext.tabs.onUpdated.addListener(cookieUpdate);
+ext.tabs.onActivated.addListener(cookieUpdate);
+
